@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Form
+from typing import Optional
+
+from fastapi import FastAPI, Form, Cookie
 from fastapi.responses import Response
 
 
@@ -18,9 +20,17 @@ users = {
 }
 
 @app.get("/")
-def index():
+def index(username : Optional[str] = Cookie(default=None)):
     with open("templates/login.html", "r") as f:
         login_page = f.read()
+    if username:
+        try:
+            user = users[username]
+        except KeyError:
+            response = Response(login_page, media_type="text/html")
+            response.delete_cookie(key="username")
+            return response
+        return Response(f"Hello, {user['name']}", media_type="text/html")
     return Response(login_page, media_type="text/html")
 
 
@@ -33,4 +43,4 @@ def process_login_page(username : str = Form(...), password : str = Form(...)):
     response = Response(f"Hello { user['name'] }, your balance { user['balance'] }", media_type="text/html")
     response.set_cookie(key="username", value=username)
 
-    return response
+    return response 
