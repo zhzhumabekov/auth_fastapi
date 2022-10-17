@@ -4,6 +4,18 @@ from fastapi.responses import Response
 
 app = FastAPI()
 
+users = {
+    "zh.zhumabekov@psa.kz" : {
+        "name": "Zhomart",
+        "password": "some_password_0",
+        "balance": 100_000
+    },
+    "guliya@gmail.com" : {
+        "name": "Guliya",
+        "password": "some_password_1",
+        "balance": 500_100
+    }
+}
 
 @app.get("/")
 def index():
@@ -11,6 +23,10 @@ def index():
         login_page = f.read()
     return Response(login_page, media_type="text/html")
 
+
 @app.post("/login")
 def process_login_page(username : str = Form(...), password : str = Form(...)):
-    return Response(f"{username} and {password}", media_type="text/html")
+    user = users.get(username)
+    if not user or user["password"] != password:
+        return Response("ИДИ НАХЕР!", media_type="text/html")
+    return Response(f"Hello { user['name'] }, your balance { user['balance'] }", media_type="text/html")
