@@ -29,4 +29,8 @@ def process_login_page(username : str = Form(...), password : str = Form(...)):
     user = users.get(username)
     if not user or user["password"] != password:
         return Response("ИДИ НАХЕР!", media_type="text/html")
-    return Response(f"Hello { user['name'] }, your balance { user['balance'] }", media_type="text/html")
+
+    response = Response(f"Hello { user['name'] }, your balance { user['balance'] }", media_type="text/html")
+    response.set_cookie(key="username", value=username)
+
+    return response
